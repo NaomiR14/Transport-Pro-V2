@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { Bell, LogOut, Menu, Moon, Settings, Sun, User } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
@@ -16,12 +18,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useSidebar } from "./sidebar-context"
+import { useRouter } from "next/navigation"
 
 export function MainHeader() {
   const { theme, setTheme } = useTheme()
   const { isOpen, toggle } = useSidebar()
   const [mounted, setMounted] = useState(false)
   const [currentDateTime, setCurrentDateTime] = useState("")
+  const router = useRouter()
 
   // Update current date and time
   useEffect(() => {
@@ -49,11 +53,42 @@ export function MainHeader() {
     setMounted(true)
   }, [])
 
+  const handleProfileClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log("🔄 Navegando a perfil...")
+    console.log("Router object:", router)
+    try {
+      router.push("/perfil")
+      console.log("✅ Navegación a /perfil iniciada")
+    } catch (error) {
+      console.error("❌ Error al navegar:", error)
+    }
+  }
+
+  const handleSettingsClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log("🔄 Navegando a configuración...")
+    try {
+      router.push("/configuracion")
+      console.log("✅ Navegación a /configuracion iniciada")
+    } catch (error) {
+      console.error("❌ Error al navegar:", error)
+    }
+  }
+
+  const handleLogoutClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log("🔄 Cerrando sesión...")
+    // Aquí se implementaría la lógica de logout
+  }
+
   return (
     <header className="sticky top-0 z-30 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-4">
-          {/* Desktop sidebar toggle - hacer visible */}
           <Button
             variant="ghost"
             size="icon"
@@ -114,29 +149,59 @@ export function MainHeader() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                <Button
+                  variant="ghost"
+                  className="relative h-9 w-9 rounded-full"
+                  onClick={() => console.log("🎯 Avatar clickeado")}
+                >
                   <Avatar className="h-9 w-9 border border-slate-200 dark:border-slate-700">
                     <AvatarFallback className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
-                      AD
+                      JR
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel>Mi cuenta</DropdownMenuLabel>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">Juan Carlos Rodríguez</p>
+                    <p className="text-xs leading-none text-muted-foreground">admin@transportpro.com</p>
+                  </div>
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={handleProfileClick}
+                    className="cursor-pointer"
+                    onSelect={(e) => {
+                      console.log("🎯 MenuItem Mi Perfil seleccionado")
+                      handleProfileClick(e as any)
+                    }}
+                  >
                     <User className="mr-2 h-4 w-4" />
-                    <span>Perfil</span>
+                    <span>Mi Perfil</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={handleSettingsClick}
+                    className="cursor-pointer"
+                    onSelect={(e) => {
+                      console.log("🎯 MenuItem Configuración seleccionado")
+                      handleSettingsClick(e as any)
+                    }}
+                  >
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Configuración</span>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={handleLogoutClick}
+                  className="cursor-pointer"
+                  onSelect={(e) => {
+                    console.log("🎯 MenuItem Cerrar sesión seleccionado")
+                    handleLogoutClick(e as any)
+                  }}
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Cerrar sesión</span>
                 </DropdownMenuItem>

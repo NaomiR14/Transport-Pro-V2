@@ -1,25 +1,10 @@
 "use client"
 
 import type React from "react"
-
-import { useState, useEffect } from "react"
-import { useTheme } from "next-themes"
-import { Bell, LogOut, Menu, Moon, Settings, Sun, User, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
+import { MainHeader } from "./main-header"
+import { SidebarNav } from "./sidebar-nav"
+import { SidebarProvider } from "./sidebar-context"
+import { ThemeProvider } from "./theme-provider"
 
 // Definir los módulos de navegación
 const navigationItems = [
@@ -331,216 +316,22 @@ const navigationItems = [
   },
 ]
 
-export function Layout({ children }: { children: React.ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [currentDateTime, setCurrentDateTime] = useState("")
-  const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-  const pathname = usePathname()
+interface LayoutProps {
+  children: React.ReactNode
+}
 
-  // Update current date and time
-  useEffect(() => {
-    const updateDateTime = () => {
-      const now = new Date()
-      const formattedDate = now.toLocaleDateString("es-ES", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      })
-      const formattedTime = now.toLocaleTimeString("es-ES", {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-      setCurrentDateTime(`${formattedDate} ${formattedTime}`)
-    }
-
-    updateDateTime()
-    const interval = setInterval(updateDateTime, 60000) // Update every minute
-    return () => clearInterval(interval)
-  }, [])
-
-  // Avoid hydration mismatch
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen)
-  }
-
+export function Layout({ children }: LayoutProps) {
   return (
-    <div className="flex h-screen bg-slate-50 dark:bg-slate-950">
-      {/* Sidebar */}
-      <aside
-        className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-transform duration-300 ease-in-out",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0 md:w-16",
-        )}
-      >
-        {/* Sidebar header */}
-        <div className="flex h-16 items-center justify-between border-b border-slate-200 dark:border-slate-800 px-4">
-          <Link href="/" className="flex items-center gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-6 w-6 text-blue-600"
-            >
-              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
-              <circle cx="7" cy="17" r="2" />
-              <path d="M9 17h6" />
-              <circle cx="17" cy="17" r="2" />
-            </svg>
-            {sidebarOpen && <span className="font-semibold text-lg">SGT</span>}
-          </Link>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleSidebar}
-            className="md:hidden rounded-full"
-            aria-label="Close sidebar"
-          >
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
-
-        {/* Sidebar content */}
-        <nav className="flex-1 overflow-y-auto py-4">
-          <ul className="space-y-1 px-2">
-            {navigationItems.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                    pathname === item.href
-                      ? "bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-50"
-                      : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800",
-                  )}
-                >
-                  <span className="flex-shrink-0">{item.icon}</span>
-                  {sidebarOpen && <span>{item.title}</span>}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        {/* Sidebar footer */}
-        <div className="border-t border-slate-200 dark:border-slate-800 p-4">
-          {sidebarOpen && <p className="text-xs text-slate-500">Sistema de Gestión de Transporte v1.0</p>}
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <div
-        className={cn(
-          "flex flex-1 flex-col transition-all duration-300 ease-in-out",
-          sidebarOpen ? "md:ml-64" : "md:ml-16",
-        )}
-      >
-        {/* Header */}
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 md:px-6">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleSidebar}
-            className="rounded-full"
-            aria-label="Toggle sidebar"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
-
-          <div className="flex-1">
-            <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
-              Sistema de Gestión de Transporte
-            </h1>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <SidebarProvider>
+        <div className="min-h-screen bg-background">
+          <MainHeader />
+          <div className="flex">
+            <SidebarNav />
+            <main className="flex-1 overflow-hidden">{children}</main>
           </div>
-
-          <div className="flex items-center gap-4">
-            <div className="text-sm text-slate-500 dark:text-slate-400 hidden md:flex items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="mr-1"
-              >
-                <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-                <line x1="16" x2="16" y1="2" y2="6" />
-                <line x1="8" x2="8" y1="2" y2="6" />
-                <line x1="3" x2="21" y1="10" y2="10" />
-              </svg>
-              Actualizado: {currentDateTime}
-            </div>
-
-            <div className="flex items-center gap-2">
-              {mounted && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                  className="rounded-full"
-                  aria-label="Cambiar tema"
-                >
-                  <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                  <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                </Button>
-              )}
-
-              <Button variant="ghost" size="icon" className="rounded-full relative" aria-label="Notificaciones">
-                <Bell className="h-5 w-5" />
-                <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center bg-red-500 text-white text-[10px]">
-                  1
-                </Badge>
-              </Button>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                    <Avatar className="h-9 w-9 border border-slate-200 dark:border-slate-700">
-                      <AvatarFallback className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
-                        AD
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel>Mi cuenta</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                      <User className="mr-2 h-4 w-4" />
-                      <span>Perfil</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Settings className="mr-2 h-4 w-4" />
-                      <span>Configuración</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Cerrar sesión</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        </header>
-
-        {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
-      </div>
-    </div>
+        </div>
+      </SidebarProvider>
+    </ThemeProvider>
   )
 }
