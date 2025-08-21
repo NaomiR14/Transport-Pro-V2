@@ -503,4 +503,45 @@ export default function IndicadoresConductorPage() {
                             <span className="text-purple-600 font-medium">
                               {formatNumber(Math.round(indicadores.cargaPorViaje))}
                             </span>
-                          </TableCell>\
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <span className="font-medium">
+                              {formatCurrency(conductor.ingresos)}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <span className="font-medium">
+                              {formatNumber(Math.round(indicadores.ingresosPorKm))}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <span className="font-medium">
+                              {formatNumber(Math.round(indicadores.ingresosPorViaje))}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge
+                              variant="outline"
+                              className={`${safetyBadge.color} flex items-center justify-center space-x-1`}
+                            >
+                              <AlertTriangle className="h-3 w-3" />
+                              <span>{conductor.numeroMultas}</span>
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <span className="font-medium text-red-600">
+                              {formatCurrency(conductor.gastosPorMultas)}
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </main>
+      </div>
+    )
+}
