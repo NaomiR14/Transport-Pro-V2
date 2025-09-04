@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react'
 import { VehiculoEntity } from '../src/domain/entities/Vehiculo'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
+const getAuthHeaders = () => {
+  if (typeof window === 'undefined') return {}
+  const token = localStorage.getItem('token')
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
 interface UseVehiculosReturn {
   vehiculos: VehiculoEntity[]
   estadisticas: {
@@ -31,7 +39,11 @@ export function useVehiculos(): UseVehiculosReturn {
   const fetchVehiculos = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/vehiculos')
+      const response = await fetch(`${API_URL}/vehiculos`, {
+        headers: {
+          ...getAuthHeaders(),
+        },
+      })
       if (!response.ok) {
         throw new Error('Error al cargar vehículos')
       }
@@ -46,7 +58,11 @@ export function useVehiculos(): UseVehiculosReturn {
 
   const fetchEstadisticas = async () => {
     try {
-      const response = await fetch('/api/vehiculos/estadisticas')
+      const response = await fetch(`${API_URL}/vehiculos/estadisticas`, {
+        headers: {
+          ...getAuthHeaders(),
+        },
+      })
       if (!response.ok) {
         throw new Error('Error al cargar estadísticas')
       }
@@ -63,10 +79,11 @@ export function useVehiculos(): UseVehiculosReturn {
 
   const createVehiculo = async (vehiculo: Omit<VehiculoEntity, 'vehiculo_id'>) => {
     try {
-      const response = await fetch('/api/vehiculos', {
+      const response = await fetch(`${API_URL}/vehiculos`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...getAuthHeaders(),
         },
         body: JSON.stringify(vehiculo),
       })
@@ -82,10 +99,11 @@ export function useVehiculos(): UseVehiculosReturn {
 
   const updateVehiculo = async (id: string, vehiculo: Partial<VehiculoEntity>) => {
     try {
-      const response = await fetch(`/api/vehiculos/${id}`, {
+      const response = await fetch(`${API_URL}/vehiculos/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          ...getAuthHeaders(),
         },
         body: JSON.stringify(vehiculo),
       })
@@ -101,8 +119,11 @@ export function useVehiculos(): UseVehiculosReturn {
 
   const deleteVehiculo = async (id: string) => {
     try {
-      const response = await fetch(`/api/vehiculos/${id}`, {
+      const response = await fetch(`${API_URL}/vehiculos/${id}`, {
         method: 'DELETE',
+        headers: {
+          ...getAuthHeaders(),
+        },
       })
       if (!response.ok) {
         throw new Error('Error al eliminar vehículo')
