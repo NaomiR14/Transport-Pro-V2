@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react'
 import { FlujoCajaEntity } from '../src/domain/entities/FlujoCaja'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
+const getAuthHeaders = () => {
+  if (typeof window === 'undefined') return {}
+  const token = localStorage.getItem('token')
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
 interface UseFlujoCajaReturn {
   flujoCaja: FlujoCajaEntity[]
   loading: boolean
@@ -19,7 +27,11 @@ export function useFlujoCaja(): UseFlujoCajaReturn {
   const fetchFlujoCaja = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/flujo-caja')
+      const response = await fetch(`${API_URL}/flujo-caja`, {
+        headers: {
+          ...getAuthHeaders(),
+        },
+      })
       if (!response.ok) {
         throw new Error('Error al cargar flujo de caja')
       }
@@ -38,10 +50,11 @@ export function useFlujoCaja(): UseFlujoCajaReturn {
 
   const createFlujoCaja = async (flujoCajaData: Omit<FlujoCajaEntity, 'id' | 'egresos' | 'utilidad' | 'margen'>) => {
     try {
-      const response = await fetch('/api/flujo-caja', {
+      const response = await fetch(`${API_URL}/flujo-caja`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...getAuthHeaders(),
         },
         body: JSON.stringify(flujoCajaData),
       })
@@ -57,10 +70,11 @@ export function useFlujoCaja(): UseFlujoCajaReturn {
 
   const updateFlujoCaja = async (id: number, flujoCajaData: Partial<FlujoCajaEntity>) => {
     try {
-      const response = await fetch(`/api/flujo-caja/${id}`, {
+      const response = await fetch(`${API_URL}/flujo-caja/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          ...getAuthHeaders(),
         },
         body: JSON.stringify(flujoCajaData),
       })
@@ -76,8 +90,11 @@ export function useFlujoCaja(): UseFlujoCajaReturn {
 
   const deleteFlujoCaja = async (id: number) => {
     try {
-      const response = await fetch(`/api/flujo-caja/${id}`, {
+      const response = await fetch(`${API_URL}/flujo-caja/${id}`, {
         method: 'DELETE',
+        headers: {
+          ...getAuthHeaders(),
+        },
       })
       if (!response.ok) {
         throw new Error('Error al eliminar registro de flujo de caja')
